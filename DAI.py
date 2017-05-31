@@ -3,7 +3,9 @@ from datetime import datetime #In case we want to show current time
 from optparse import OptionParser
 
 ServerIP = '127.0.0.1' #Change to your IoTtalk IP or None for autoSearching
-Reg_addr="4HEC26CAXSDF" # if None, Reg_addr = MAC address
+addr =  '%030x' % random.randrange(16**30)
+#print(addr)
+Reg_addr=addr # if None, Reg_addr = MAC address_from=''
 _from=''
 _to=''
 _id=''
@@ -31,10 +33,11 @@ def Push_Data(args):
         try:	#2017-05-25T14:55:13.000Z
 		#2017/05/01 02:37
             #Pull data from a device feature called "Dummy_Control"            
-            control = DAN.pull(AskDogData-O)
-            args['From'] = control['from'][0:4]+'-'+control['from'][5:7]+'-'+control['from'][8:10]+'T'+control['from'][11:16]+':00.00Z'
+            control = DAN.pull('AskForDogData-O')
+            control = control[0];
+            args['From'] = control['From'][0:4]+'-'+control['From'][5:7]+'-'+control['From'][8:10]+'T'+control['From'][11:16]+':00.00Z'
             _from=args['From']
-            args['To'] = control['from'][0:4]+'-'+control['from'][5:7]+'-'+control['from'][8:10]+'T'+control['from'][11:16]+':00.00Z'
+            args['To'] = control['To'][0:4]+'-'+control['To'][5:7]+'-'+control['To'][8:10]+'T'+control['To'][11:16]+':00.00Z'
             _to=args['To']
             if new_submit(control):
                 Push_Data(args)
@@ -49,11 +52,12 @@ def Push_Data(args):
                 else:
                     tempID = tempID + "1"
                 jsonData['TrackerID'] = tempID
-                jsonData['N'] = queryResult[i][0]
-                jsonData['E'] = queryResult[i][1]
-                jsonData['Time'] = queryResult[i][2]
+                jsonData['N'] = queryResult[i][1]
+                jsonData['E'] = queryResult[i][2]
+                jsonData['Time'] = queryResult[i][0]
+                print("Pushing Data...")
                 print(jsonData)
-                DAN.push ('IDGeoLoTime-I', jsonData)
+                DAN.push ('DogData-I', jsonData)
                 i = i + 1
             else :
                 i = 0
@@ -62,11 +66,12 @@ def Push_Data(args):
                     jsonData['TrackerID'] = 0
                 else:
                     jsonData['TrackerID'] = 2
-                jsonData['N'] = queryResult[i][0]
-                jsonData['E'] = queryResult[i][1]
-                jsonData['Time'] = queryResult[i][2]
+                jsonData['N'] = queryResult[i][1]
+                jsonData['E'] = queryResult[i][2]
+                jsonData['Time'] = queryResult[i][0]
+                print("Pushing Data...")
                 print(jsonData)
-                DAN.push ('IDGeoLoTime-I', jsonData)
+                DAN.push ('DogData-I', jsonData)
                 i = i + 1        
         except Exception as e:
             print(e)
@@ -82,8 +87,8 @@ def Push_Data(args):
     
 
 def main():
-    DAN.profile['dm_name']='Sensorsystem'
-    DAN.profile['df_list']=['DogData-I','AskDogData-O']
+    DAN.profile['dm_name']='SensorSystem'
+    DAN.profile['df_list']=['DogData-I','AskForDogData-O']
     DAN.profile['d_name']= None # None for autoNaming
     DAN.device_registration_with_retry(ServerIP, Reg_addr)
     Dog_options, Dog_args = parse_args()

@@ -58,7 +58,7 @@ def curlToJson():
 	
 	curl.setopt(curl.URL,host + "/" + uri + "?api_key=" + api_key + "&api_token=" + api_token + "&time=" + time + "&mac=" + mac +
 	 "&from=" + t_from + "&to=" + t_to + "&index=" + index + "&limit=" + limit)
-	with open(os.path.join('.','dogData.json'), 'wb') as f:
+	with open(os.path.join('.','dogDataTemp.json'), 'wb') as f:
 		curl.setopt(curl.WRITEDATA, f)
 		curl.perform()
 	curl.close()
@@ -69,7 +69,7 @@ def curlToJson():
 
 def connectAndStoreDB():
 	databaseName = "dog.db"
-	tableName = "dogData"
+	tableName = "dogDataTemp"
 	tableAttrIni = """ReceiveTime TEXT PRIMARY KEY DESC, 
 			Latitude TEXT, 
 			Longitude TEXT, 
@@ -84,7 +84,7 @@ def connectAndStoreDB():
 	dogJson = json.load(open(os.path.join('.', jsonFile)))
 	
 	print("Connecting to %s" % databaseName)
-	c.execute("DROP TABLE IF EXISTS dogData")
+	c.execute("DROP TABLE IF EXISTS dogDataTemp")
 	printTables(c)
 	
 	c.execute("""CREATE TABLE IF NOT EXISTS %s(%s);""" % (tableName, tableAttrIni))
@@ -113,7 +113,7 @@ def getLatLngOrder(Device, args):
 	if args['number'] != None:
 		limit_default = str(args['number'])
 	databaseName = "dog.db"
-	tableName = "dogData"
+	tableName = "dogDataTemp"
 	db = sqlite3.connect(os.path.join('../../sqlite',databaseName))
 	c = db.cursor()
 	fff = args['From']
